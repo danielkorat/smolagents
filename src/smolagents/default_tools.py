@@ -19,6 +19,7 @@ import json
 import os
 from dataclasses import dataclass
 from typing import Dict, Optional
+import logging
 
 from .local_python_executor import (
     BASE_BUILTIN_MODULES,
@@ -163,9 +164,10 @@ class GoogleSearchTool(Tool):
         cache_key = (query, filter_year)
         cache_key_str = json.dumps(cache_key)
         if cache_key_str in self.cache:
-            print(f"Cache hit for query: {query}")
+            logging.error(f"Cache hit for query: {query}")
             return self.cache[cache_key_str]
-
+        else:
+            logging.error(f"Cache miss for query: {query}")
         if self.serpapi_key is None:
             raise ValueError("Missing SerpAPI key. Make sure you have 'SERPAPI_API_KEY' in your env variables.")
 
