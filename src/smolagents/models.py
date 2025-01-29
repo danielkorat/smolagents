@@ -356,6 +356,7 @@ class TransformersModel(Model):
         device_map: Optional[str] = None,
         torch_dtype: Optional[str] = None,
         trust_remote_code: bool = False,
+        temperature: float = 0.5,
         **kwargs,
     ):
         super().__init__()
@@ -374,7 +375,8 @@ class TransformersModel(Model):
         self.kwargs = kwargs
         if device_map is None:
             device_map = "cuda" if torch.cuda.is_available() else "cpu"
-        logger.info(f"Using device: {device_map}")
+        logger.error(f"Using device: {device_map}")
+        self.temperature = temperature
         try:
             self.tokenizer = AutoTokenizer.from_pretrained(model_id)
             self.model = AutoModelForCausalLM.from_pretrained(
@@ -440,6 +442,7 @@ class TransformersModel(Model):
         out = self.model.generate(
             **prompt_tensor,
             stopping_criteria=(self.make_stopping_criteria(stop_sequences) if stop_sequences else None),
+            temperature=self.temperature,
             **self.kwargs,
         )
         generated_tokens = out[0, count_prompt_tokens:]
